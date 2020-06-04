@@ -40,9 +40,9 @@ room['treasure'].s_to = room['narrow']
 
 # Make a new player object that is currently in the 'outside' room.
 
-player_name = input("Tell us your name!")
+player_name = input("Tell us your name!\n")
 
-playa = Player(player_name, room['outside'])
+player = Player(player_name, room['outside'])
 
 # Write a loop that:
 #
@@ -55,24 +55,25 @@ playa = Player(player_name, room['outside'])
 #
 # If the user enters "q", quit the game.
 
-def change_rooms():
-    next_room = getattr(playa.current_room, f"{next_step}_to")
-    if next_room == "wall":
-        print("You can't move in this direction from here!")
-    else: 
-        playa.current_room = next_room
-    game_logic()
+def main():
+    print(f"-------Hey {player.name}! You are currently at {player.current_room.name}!------\n")
+    print(f'{player.current_room.description}\n')
 
-def game_logic():
-    print(f"Location: {playa.current_room.name}")
-    print(f'{playa.current_room.description}')
-    print("Which direction do you want to go next? Type:n for north, s for south, e for east, w for west, q for quit,")
-    next_step = input()
-    if next_step == "q":
-        print("You have made a terrible mistake in leaving")
-    elif next_step == "n" or next_step == "s" or next_step == "e" or next_step == "w":
+    next_step = input(f"Which direction do you want to go next {player.name}? Type: n for north, s for south, e for east, w for west, or q for quit.\n")
+
+    if next_step == "n" or next_step == "s" or next_step == "e" or next_step == "w":
         change_rooms(next_step)
+    elif next_step == "q":
+        print(f"You are a traitor {player.name}! You have made a terrible mistake in leaving. You will regret your heinous decision to leave!.")
     else:
-        print("You can't move this way")
+        print("This doesn't make sense. Try again!")
 
-change_rooms()
+def change_rooms(next_step):
+    next_step = getattr(player.current_room, f"{next_step}_to") or None
+    if next_step == 'wall':
+        print(f"You can't move this way. It's a wall!\n")
+    else: 
+        player.current_room = next_step
+    main()
+
+main()
