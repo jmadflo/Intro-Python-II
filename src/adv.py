@@ -55,28 +55,6 @@ player = Player(player_name, room['outside'])
 #
 # If the user enters "q", quit the game.
 
-# def main():
-#     print(f"-------Hey {player.name}! You are currently at {player.current_room.name}!------\n")
-#     print(f'{player.current_room.description}\n')
-
-#     next_step = input(f"Which direction do you want to go next {player.name}? Type: n for north, s for south, e for east, w for west, or q for quit.\n")
-
-#     if next_step == "n" or next_step == "s" or next_step == "e" or next_step == "w":
-#         change_rooms(next_step)
-#     elif next_step == "q":
-#         print(f"You are a traitor {player.name}! You have made a terrible mistake in leaving. You will regret your heinous decision to leave!.")
-#     else:
-#         print("This doesn't make sense. Try again!")
-
-# def change_rooms(next):
-#     next = getattr(player.current_room, f"{next}_to") or None
-#     if next == 'wall':
-#         print(f"You can't move this way. It's a wall!\n")
-#     else: 
-#         player.current_room = next
-#     main()
-
-# main()
 next_step = 'not yet decided'
 
 while next_step != 'q':
