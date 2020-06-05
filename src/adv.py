@@ -1,5 +1,6 @@
 from room import Room
 from player import Player
+from item import Item
 
 # Declare all the rooms
 
@@ -34,6 +35,13 @@ room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
+# Put some items into some of the rooms to start with
+
+room['outside'].items = [Item('ball', 'a fun spherical toy'), Item('bug', 'a creepy crawly creature'), Item('stick', 'a thin wooden rod')]
+room['overlook'].items = [Item('binoculars', 'a tool for observing far away objects'), Item('mat', "a small square on the floor which can be used to clean the bottom of one's shoes")]
+room['narrow'].items = [Item('torch', 'a rod with fire at the top that can be used as a portable light'), Item('coin', 'a flat round piece of metal that is used as money')]
+room['treasure'].items = [Item('empty_chest', 'a container that seems to have had treasure in the past, but no longer'), Item('shard_of_glass', 'a sharp piece of glass that seems to have been part of a glass cup')]
+
 #
 # Main
 #
@@ -42,7 +50,7 @@ room['treasure'].s_to = room['narrow']
 
 player_name = input("Tell us your name!\n")
 
-player = Player(player_name, room['outside'])
+player = Player(player_name, room['outside'], [Item('phone', 'a device for communicating with others'), Item('wallet', 'a place to store money and identification')])
 
 # Write a loop that:
 #
@@ -57,20 +65,75 @@ player = Player(player_name, room['outside'])
 
 next_step = 'not yet decided'
 
-while next_step != 'q':
-    print(f"-------Hey {player.name}! You are currently at {player.current_room.name}!------\n")
+def room_greeting():
+    print(f"-------Hey {player.name}! You are currently at the {player.current_room.name}!------\n")
+
+room_greeting()
+
+while True:
     print(f'{player.current_room.description}\n')
 
-    next_step = input(f"Which direction do you want to go next {player.name}? Type: n for north, s for south, e for east, w for west, or q for quit.\n")
-
-    if next_step == "n" or next_step == "s" or next_step == "e" or next_step == "w":
-        next = getattr(player.current_room, f"{next_step}_to")
-        if next == 'wall':
-            print(f"You can't move this way. It's a wall!\n")
-        else: 
-            player.current_room = next
-    elif next_step == "q":
-        print(f"You are a traitor {player.name}! You have made a terrible mistake in leaving. You will regret your heinous decision to leave!.")
+    # Print items for the current room
+    room_items_names = [x.name for x in player.current_room.items]
+    if len(player.current_room.items) > 0:
+        print(f'The items in this room are the following: {room_items_names}\n')
     else:
-        print("This doesn't make sense. Try again!")
+        print('There are no items in this room')
+    
+    # Print items for the current player
+    player_items_names = [x.name for x in player.items]
+    if len(player.items) > 0:
+        print(f'The items that you currently hold are the following: {player_items_names}\n')
+    else:
+        print('You have no items.')
 
+    next_step = input(f"If you want to enter another room type: n for north, s for south, e for east, w for west, i or inventory to review your items, or q for quit.\n").split(' ')
+    if len(next_step) == 1: # Move player
+        direction = next_step[0]
+        if direction == "n" or direction == "s" or direction == "e" or direction == "w":
+            next_room = getattr(player.current_room, f"{direction}_to")
+            if next_room == 'wall':
+                print(f"You can't move this way. It's a wall!\n")
+            else: 
+                player.current_room = next_room
+                room_greeting()
+        elif direction == "q": # quitting
+            print(f"You are a traitor {player.name}! You have made a terrible mistake in leaving. You will regret your heinous decision to leave!.")
+            break
+        elif direction == 'i' or direction == 'inventory':
+            print(f'My items: {player_items_names}')
+        else:
+            print("This doesn't make sense. Try again!\n")
+    elif len(next_step) == 2: # deal with items
+        action = next_step[0]
+        item_name = next_step[1]
+        item = Item('placeholder', 'placeholder')
+        if action == 'get' or action == 'take':
+            for i in player.current_room.items:
+                if item_name == i.name:
+                    item = i
+                    break
+            if item == '':
+                print(f'There is no {item} in this room.\n')
+            elif item_name in room_items_names:
+                player.current_room.items.remove(item)
+                player.items.append(item)
+                item.on_take()
+                
+        elif action == 'drop':
+            for i in player.items:
+                if item_name == i.name:
+                    item = i
+                    break
+            if item == '':
+                print(f'You do not have a {item_name} with you.')
+
+            elif item.name in player_items_names:
+                player.items.remove(item)
+                player.current_room.items.append(item)
+                item.on_drop()
+    else: 
+        print("This doesn't make sense. Try again!\n")
+    print('\n\n -------------------- \n\n')
+
+# Python3 adv.py
